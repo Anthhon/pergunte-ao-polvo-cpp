@@ -28,4 +28,4 @@ xdg-open index.html
 
 ### Sobre o projeto
 
-Caso não esteja óbvio, esse é um projeto piada feito entre amigos
+Caso não esteja óbvio, esse é um **projeto piada** feito entre amigos!
