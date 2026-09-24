@@ -1,6 +1,6 @@
 # pergunte-ao-polvo-cpp
 
-![Pergunte ao Polvo CPP Screenshot](./screenshot.png)
+![Pergunte ao Polvo CPP Screenshot](screenshot.png)
 
 ## Como usar
 
