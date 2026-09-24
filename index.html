@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Polvo CPP</title>
+        <link rel="stylesheet" href="style.css">
+        <style>
+@import url('https://fonts.googleapis.com/css2?family=Syne+Mono&family=Workbench:SCAN@-23&display=swap');
+
+body{
+    background-image: url('./wallpaper.png');
+    background-size: cover;
+    background-position: center;
+    backdrop-filter: brightness(15%);
+    margin: 0;
+    padding: 0;
+}
+#page-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 100vw;
+    height: 100vh;
+}
+
+#menu {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: 0.01vh;
+}
+
+#menu-input {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1vw;
+}
+
+#menu-input > p {
+    margin: 0;
+}
+
+#menu-button {
+    margin-top: 2vh;
+}
+
+#choice {
+    font-size: large;
+}
+
+#menu-title {
+    margin-bottom: 3vh;
+}
+
+#menu-title > * {
+    margin: 0;
+}
+
+#warning, #err {
+    background-color: red;
+    font-weight: 800;
+    color: white;
+    padding: 0.2vw 1vw;
+}
+
+img {
+    width: 40vh;
+    height: auto;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+h2 {
+    font-family: "Workbench", sans-serif;
+    color: white;
+    font-size: xx-large;
+}
+
+button {
+    border: 1px solid white;
+    padding: 0.6vh 1vw;
+    background: black;
+    color: white;
+}
+
+button:hover {
+    background: white;
+    color: black;
+}
+
+#finp, #sinp {
+    width: fit-content;
+    padding: 0.6vh 1vw;
+}
+
+#menu-input, input, div, p {
+    font-family: "Syne Mono", monospace;
+    color: white;
+}
+
+input {
+    color: black;
+}
+
+/* --- view toggle / estado --- */
+.hidden {
+    display: none !important;
+}
+
+#choice-div {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5vh;
+}
+
+#choice-div.visible {
+    display: flex;
+}
+
+#err {
+    display: none;
+}
+
+#err.visible {
+    display: block;
+}
+
+#ask-again {
+    margin-top: 1vh;
+}
+        </style>
+    </head>
+    <body>
+        <div id="page-content">
+            <img src="./octopus-cpp-inverted.png" alt="octopus-cpp">
+
+            <div id="menu">
+                <div id="menu-title">
+                    <h2>Pergunte ao Polvo CPP</h2>
+                    <p>Duas escolhas e apenas uma vontade... a minha.</p>
+                </div>
+
+                <div id="menu-input">
+                    <input type="text" id="finp">
+                    <p>ou</p>
+                    <input type="text" id="sinp">
+                </div>
+                <button id="menu-button" onclick="run()">Perguntar</button>
+
+                <div id="choice-div">
+                    <p id="choice"></p>
+                    <small id="warning">Desrespeitar a vontade do polvo resultará em consequências severas!</small>
+                    <button id="ask-again" onclick="reset()">Perguntar novamente</button>
+                </div>
+
+                <p id="err"></p>
+            </div>
+
+        </div>
+
+        <script>
+            const API = "http://localhost:8080";
+
+            async function run() {
+                const fi = document.getElementById('finp').value;
+                const si = document.getElementById('sinp').value;
+
+                const errEl = document.getElementById('err');
+                errEl.textContent = '';
+                errEl.classList.remove('visible');
+                document.getElementById('choice').textContent = '';
+
+                const API_QUERY = `${API}/api/choose?finp=${encodeURIComponent(fi)}&sinp=${encodeURIComponent(si)}`;
+
+                try {
+                    const res = await fetch(API_QUERY);
+                    let data;
+                    try {
+                        data = await res.json();
+                    } catch {
+                        showError('Resposta inválida do servidor.');
+                        return;
+                    }
+
+                    if (!res.ok || data.error) {
+                        showError(data.error || `Erro ${res.status}`);
+                        return;
+                    }
+
+                    document.getElementById('choice').textContent = data.choice;
+                    swapToChoice();
+                } catch (e) {
+                    showError('Falha ao conectar com a API.');
+                }
+            }
+
+            function showError(msg) {
+                const errEl = document.getElementById('err');
+                errEl.textContent = msg;
+                errEl.classList.add('visible');
+            }
+
+            function swapToChoice() {
+                document.getElementById('menu-input').classList.add('hidden');
+                document.getElementById('menu-button').classList.add('hidden');
+                document.getElementById('choice-div').classList.add('visible');
+            }
+
+            function reset() {
+                document.getElementById('finp').value = '';
+                document.getElementById('sinp').value = '';
+                document.getElementById('choice').textContent = '';
+
+                const errEl = document.getElementById('err');
+                errEl.textContent = '';
+                errEl.classList.remove('visible');
+
+                document.getElementById('choice-div').classList.remove('visible');
+                document.getElementById('menu-input').classList.remove('hidden');
+                document.getElementById('menu-button').classList.remove('hidden');
+            }
+        </script>
+    </body>
+</html>
